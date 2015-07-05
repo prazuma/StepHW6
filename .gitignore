@@ -1,9 +1,8 @@
 ## .gitignore ##
-# ignore binary files
+# ignore directories
 binaryfiles/
+compiled/
 
 # emacs
 *~
 
-# compile
-complied/
