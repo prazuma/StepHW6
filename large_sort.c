@@ -1,5 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
+
+double get_time(){
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return tv.tv_sec + tv.tv_usec * 1e-6;
+}
 
 int int_cmp(const int *a, const int *b) {
     if (*a < *b)
@@ -74,13 +81,14 @@ int decideSize(int a){
 }
 
 int main(int argc, char** argv){
+  double begin = get_time();
   char* fileName = argv[1];
   FILE* fp = fopen(fileName, "rb");
   FILE* fpW = fopen("result", "wb");
   //一時ファイルに保存(それぞれのファイルはソート済み)
-  FILE* fpT[10];
+  FILE* fpT[200];
   int k;
-  for(k = 0; k < 10; k++){
+  for(k = 0; k < 200; k++){
     fpT[k] = tmpfile();
   }
   int num = 1000 * 1000 * 500 / sizeof(int);
@@ -124,6 +132,9 @@ int main(int argc, char** argv){
       break;
     fwrite(buffer, sizeof(int), num, fpW);
   }
+
+  double end = get_time();
+  printf("time: %.6lf sec\n", end - begin);
 
   free(buffer);
   fclose(fp);
