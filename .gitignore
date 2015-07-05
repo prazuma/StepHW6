@@ -1,8 +1,9 @@
 ## .gitignore ##
-# ignore all
-*
-*/
+# ignore binary files
+binaryfiles/
 
-# allow any
-!*.c
-README.md
+# emacs
+*~
+
+# compile
+complied/
