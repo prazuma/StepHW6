@@ -13,7 +13,7 @@ FILE* mergeFile(FILE* fp1, FILE* fp2){
   if(fp1 == fp2) return fp1;
   FILE* fpTemp = tmpfile();
   int i = 0, j = 0, count = 0, k;
-  int num = 1000 * 1000 * 100 / sizeof(int) / 2;
+  int num = 1000 * 1000 * 500 / sizeof(int) / 2;
   int* buff1 = (int*)malloc(num * sizeof(int));
   int* buff2 = (int*)malloc(num * sizeof(int));
   int* buffer = (int*)malloc(num * sizeof(int));
@@ -83,7 +83,7 @@ int main(int argc, char** argv){
   for(k = 0; k < 10; k++){
     fpT[k] = tmpfile();
   }
-  int num = 1000 * 1000 * 100 / sizeof(int);
+  int num = 1000 * 1000 * 500 / sizeof(int);
   int* buffer = (int*)malloc(num * sizeof(int));
   int* bufferW = (int*)malloc(num * sizeof(int) * 2);
   int numTemp = 0;
