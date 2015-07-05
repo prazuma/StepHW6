@@ -24,7 +24,6 @@ int main(int argc, char** argv){
     for (i = 0; i < num; i++) {
       printf("%d番目 = %d\n", i, buffer[i]);
     }
-    buffer=sort(buffer, ret);
   }
   free(buffer);
   fclose(fp);
