@@ -78,9 +78,9 @@ int main(int argc, char** argv){
   FILE* fp = fopen(fileName, "rb");
   FILE* fpW = fopen("result", "wb");
   //一時ファイルに保存(それぞれのファイルはソート済み)
-  FILE* fpT[10];
+  FILE* fpT[100];
   int k;
-  for(k = 0; k < 10; k++){
+  for(k = 0; k < 100; k++){
     fpT[k] = tmpfile();
   }
   int num = 1000 * 1000 / sizeof(int); //約1MB分
