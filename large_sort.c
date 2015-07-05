@@ -12,7 +12,7 @@ int int_cmp(const int *a, const int *b) {
 int main(int argc, char** argv){
   char* fileName = argv[1];
   FILE* fp = fopen(fileName, "rb");
-  FILE* fpW = fopen("result", "ab");
+  FILE* fpW = fopen("result", "wb");
   FILE* fpT[3];
   int k;
   for(k = 0; k < 3; k++){
@@ -32,11 +32,46 @@ int main(int argc, char** argv){
     fwrite(buffer, sizeof(int), ret, fpT[numTemp++]);
   }
   int i, j;
+  int *buffList[numTemp];
+  size_t sizeList[numTemp];
+  for(i = 0; i < numTemp; i++){
+    buffList[i] = (int*)malloc(num * sizeof(int));
+  }
+
   for(i = 0; i < numTemp; i++){
     rewind(fpT[i]);
-    size_t ret = fread(buffer, sizeof(int), num, fpT[i]);
-    for(j = 0; j < num; j++)
-      printf("b: %d\n", buffer[j]);
+    sizeList[i] = fread(buffList[i], sizeof(int), num, fpT[i]);
+  }
+  int count = 0;
+  int point1 = 0, point2 = 0;
+  int size1 = sizeList[0], size2 = sizeList[1];
+  while(point1 < size1 && point2 < size2){
+    if(buffList[0][point1] < buffList[1][point2])
+      buffer[count++] = buffList[0][point1++];
+    else
+      buffer[count++] = buffList[1][point2++];
+    if(count == num){
+      fwrite(buffer, sizeof(int), num, fpW);
+      count = 0;
+    }
+  }
+  if(point1 != size1){
+    for(i = point1; i < size1; i++){
+      buffer[count++] = buffList[0][i];
+      if(count == num){
+	fwrite(buffer, sizeof(int), num, fpW);
+	count = 0;
+      }
+    }
+  }
+  if(point2 != size2){
+    for(i = point2; i < size2; i++){
+      buffer[count++] = buffList[1][i];
+      if(count == num){
+	fwrite(buffer, sizeof(int), num, fpW);
+	count = 0;
+      }
+    }
   }
   free(buffer);
   fclose(fp);
