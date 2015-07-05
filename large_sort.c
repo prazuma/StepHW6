@@ -12,6 +12,7 @@ int int_cmp(const int *a, const int *b) {
 int main(int argc, char** argv){
   char* fileName = argv[1];
   FILE* fp = fopen(fileName, "rb");
+  FILE* fpW = fopen("result", "wb");
   int num = 1000 * 1000 / sizeof(int); //約1MB分
   int* buffer = (int*)malloc(num * sizeof(int));
   while (1) {
@@ -25,8 +26,10 @@ int main(int argc, char** argv){
       printf("%d番目 = %d\n", i, buffer[i]);
     }
   }
+  size_t ret = fwrite(buffer, sizeof(int), num, fpW);
   free(buffer);
   fclose(fp);
+  fclose(fpW);
   return 0;
 }
 
