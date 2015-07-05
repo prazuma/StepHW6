@@ -3,6 +3,9 @@
 binaryfiles/
 compiled/
 
+# ignore result file
+result
+
 # emacs
 *~
 
