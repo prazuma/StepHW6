@@ -9,7 +9,7 @@ int int_cmp(const int *a, const int *b) {
     return (0);
 }
 
-FILE* mergeFiles(FILE* fp1, FILE* fp2){
+FILE* mergeFile(FILE* fp1, FILE* fp2){
   if(fp1 == fp2) return fp1;
   FILE* fpTemp = tmpfile();
   int i = 0, j = 0, count = 0, k;
@@ -78,12 +78,11 @@ int main(int argc, char** argv){
   FILE* fp = fopen(fileName, "rb");
   FILE* fpW = fopen("result", "wb");
   //一時ファイルに保存(それぞれのファイルはソート済み)
-  FILE* fpT[3];
+  FILE* fpT[10];
   int k;
-  for(k = 0; k < 3; k++){
+  for(k = 0; k < 10; k++){
     fpT[k] = tmpfile();
   }
-  FILE fileArray[10];
   int num = 1000 * 1000 / sizeof(int); //約1MB分
   int* buffer = (int*)malloc(num * sizeof(int));
   int* bufferW = (int*)malloc(num * sizeof(int) * 2);
@@ -112,7 +111,7 @@ int main(int argc, char** argv){
       if(p2 == firstNum)
 	p2 = p2 - 1;
       printf("p1 = %d, p2 = %d\n", p1, p2);
-      fpT[i] = mergeFiles(fpT[p1], fpT[p2]);
+      fpT[i] = mergeFile(fpT[p1], fpT[p2]);
       i++;
     }
     firstNum = numTemp;
