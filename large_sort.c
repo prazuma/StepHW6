@@ -9,10 +9,75 @@ int int_cmp(const int *a, const int *b) {
     return (0);
 }
 
+FILE* mergeFiles(FILE* fp1, FILE* fp2){
+  if(fp1 == fp2) return fp1;
+  FILE* fpTemp = tmpfile();
+  int i = 0, j = 0, count = 0, k;
+  int num = 1000 * 1000 / sizeof(int) / 2;//約0.5MB分
+  int* buff1 = (int*)malloc(num * sizeof(int));//約0.5MB分
+  int* buff2 = (int*)malloc(num * sizeof(int));//約0.5MB分
+  int* buffer = (int*)malloc(num * sizeof(int));
+  rewind(fp1);
+  rewind(fp2);
+  size_t size1 = fread(buff1, sizeof(int), num, fp1);
+  size_t size2 = fread(buff2, sizeof(int), num, fp2);
+  while(1){
+    if(size1 == 0 || size2 == 0) break;
+    while(i < size1 && j < size2){
+      if(buff1[i] < buff2[j]){
+	buffer[count++] = buff1[i++];
+      }else{
+	buffer[count++] = buff2[j++];
+      }
+      if(count == num){
+	fwrite(buffer, sizeof(int), num, fpTemp);
+	count = 0;
+      }
+    }
+    if(i == size1){
+      size1 = fread(buff1, sizeof(int), num, fp1);
+      i = 0;
+    }
+    if(j == size2){
+      size2 = fread(buff2, sizeof(int), num, fp2);
+      j = 0;
+    }
+  }
+  if(i != size1){
+    for(k = i; k < size1; k++){
+      buffer[count++] = buff1[k];
+      if(count == num){
+	fwrite(buffer, sizeof(int), num, fpTemp);
+	count = 0;
+      }
+    }
+  }
+  if(j != size2){
+    for(k = j; k < size2; k++){
+      buffer[count++] = buff2[k];
+      if(count == num){
+	fwrite(buffer, sizeof(int), num, fpTemp);
+	count = 0;
+      }
+    }
+  }
+  free(buff1);
+  free(buff2);
+  free(buffer);
+  return fpTemp;
+}
+
+int decideSize(int a){
+  int size = a / 2;
+  if(a % 2 == 1) size++;
+  return size;
+}
+
 int main(int argc, char** argv){
   char* fileName = argv[1];
   FILE* fp = fopen(fileName, "rb");
   FILE* fpW = fopen("result", "wb");
+  //一時ファイルに保存(それぞれのファイルはソート済み)
   FILE* fpT[3];
   int k;
   for(k = 0; k < 3; k++){
@@ -31,48 +96,36 @@ int main(int argc, char** argv){
     qsort(buffer, ret, sizeof(int), (int(*)(const void*, const void*))int_cmp);
     fwrite(buffer, sizeof(int), ret, fpT[numTemp++]);
   }
-  int i, j;
-  int *buffList[numTemp];
-  size_t sizeList[numTemp];
-  for(i = 0; i < numTemp; i++){
-    buffList[i] = (int*)malloc(num * sizeof(int));
+  
+  int firstNum = numTemp;
+  printf("First: %d\n", numTemp);
+  while(1){
+    if(numTemp == 1)
+      break;
+    numTemp = decideSize(numTemp);
+    printf("NOW: %d\n", numTemp);
+
+    int i = 0, p1, p2;
+    while(i < numTemp){
+      p1 = i * 2;
+      p2 = i * 2 + 1;
+      if(p2 == firstNum)
+	p2 = p2 - 1;
+      printf("p1 = %d, p2 = %d\n", p1, p2);
+      fpT[i] = mergeFiles(fpT[p1], fpT[p2]);
+      i++;
+    }
+    firstNum = numTemp;
   }
 
-  for(i = 0; i < numTemp; i++){
-    rewind(fpT[i]);
-    sizeList[i] = fread(buffList[i], sizeof(int), num, fpT[i]);
+  rewind(fpT[0]);
+  while(1){
+    size_t ret = fread(buffer, sizeof(int), num, fpT[0]);
+    if(ret == 0)
+      break;
+    fwrite(buffer, sizeof(int), num, fpW);
   }
-  int count = 0;
-  int point1 = 0, point2 = 0;
-  int size1 = sizeList[0], size2 = sizeList[1];
-  while(point1 < size1 && point2 < size2){
-    if(buffList[0][point1] < buffList[1][point2])
-      buffer[count++] = buffList[0][point1++];
-    else
-      buffer[count++] = buffList[1][point2++];
-    if(count == num){
-      fwrite(buffer, sizeof(int), num, fpW);
-      count = 0;
-    }
-  }
-  if(point1 != size1){
-    for(i = point1; i < size1; i++){
-      buffer[count++] = buffList[0][i];
-      if(count == num){
-	fwrite(buffer, sizeof(int), num, fpW);
-	count = 0;
-      }
-    }
-  }
-  if(point2 != size2){
-    for(i = point2; i < size2; i++){
-      buffer[count++] = buffList[1][i];
-      if(count == num){
-	fwrite(buffer, sizeof(int), num, fpW);
-	count = 0;
-      }
-    }
-  }
+
   free(buffer);
   fclose(fp);
   fclose(fpW);
