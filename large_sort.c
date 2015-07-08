@@ -84,6 +84,10 @@ int main(int argc, char** argv){
   double begin = get_time();
   char* fileName = argv[1];
   FILE* fp = fopen(fileName, "rb");
+  if (fp == NULL) {
+    printf("error: Cannot open file %s\n", fileName);
+    exit(1);
+  }
   FILE* fpW = fopen("result", "wb");
   //一時ファイルに保存(それぞれのファイルはソート済み)
   FILE* fpT[200];
