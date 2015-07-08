@@ -20,14 +20,14 @@ FILE* mergeFile(FILE* fp1, FILE* fp2){
   if(fp1 == fp2) return fp1;
   FILE* fpTemp = tmpfile();
   int i = 0, j = 0, count = 0, k;
-  int num = 1000 * 1000 * 500 / sizeof(int) / 2;
-  int* buff1 = (int*)malloc(num * sizeof(int));
-  int* buff2 = (int*)malloc(num * sizeof(int));
+  int num = 1000 * 1000 * 500 / sizeof(int);
+  int* buff1 = (int*)malloc(num * sizeof(int) / 2);
+  int* buff2 = (int*)malloc(num * sizeof(int) / 2);
   int* buffer = (int*)malloc(num * sizeof(int));
   rewind(fp1);
   rewind(fp2);
-  size_t size1 = fread(buff1, sizeof(int), num, fp1);
-  size_t size2 = fread(buff2, sizeof(int), num, fp2);
+  size_t size1 = fread(buff1, sizeof(int), num / 2, fp1);
+  size_t size2 = fread(buff2, sizeof(int), num / 2, fp2);
   while(1){
     if(size1 == 0 || size2 == 0) break;
     while(i < size1 && j < size2){
@@ -42,11 +42,11 @@ FILE* mergeFile(FILE* fp1, FILE* fp2){
       }
     }
     if(i == size1){
-      size1 = fread(buff1, sizeof(int), num, fp1);
+      size1 = fread(buff1, sizeof(int), num / 2, fp1);
       i = 0;
     }
     if(j == size2){
-      size2 = fread(buff2, sizeof(int), num, fp2);
+      size2 = fread(buff2, sizeof(int), num / 2, fp2);
       j = 0;
     }
   }
@@ -91,9 +91,10 @@ int main(int argc, char** argv){
   for(k = 0; k < 200; k++){
     fpT[k] = tmpfile();
   }
-  int num = 1000 * 1000 * 500 / sizeof(int);
-  int* buffer = (int*)malloc(num * sizeof(int));
-  int* bufferW = (int*)malloc(num * sizeof(int) * 2);
+  int num = 1000 * 1000 * 1000 / sizeof(int);
+  int* buffer;
+  buffer = (int*)malloc(num * sizeof(int));
+
   int numTemp = 0;
   while (1) {
     size_t ret = fread(buffer, sizeof(int), num, fp);
@@ -103,6 +104,7 @@ int main(int argc, char** argv){
     qsort(buffer, ret, sizeof(int), (int(*)(const void*, const void*))int_cmp);
     fwrite(buffer, sizeof(int), ret, fpT[numTemp++]);
   }
+  free(buffer);
   
   int firstNum = numTemp;
   while(1){
@@ -121,19 +123,20 @@ int main(int argc, char** argv){
     }
     firstNum = numTemp;
   }
-
+  
+  int* bufferW = (int*)malloc(num * sizeof(int));
   rewind(fpT[0]);
   while(1){
-    size_t ret = fread(buffer, sizeof(int), num, fpT[0]);
+    size_t ret = fread(bufferW, sizeof(int), num, fpT[0]);
     if(ret == 0)
       break;
-    fwrite(buffer, sizeof(int), ret, fpW);
+    fwrite(bufferW, sizeof(int), ret, fpW);
   }
 
   double end = get_time();
   printf("time: %.6lf sec\n", end - begin);
 
-  free(buffer);
+  free(bufferW);
   fclose(fp);
   fclose(fpW);
   return 0;
