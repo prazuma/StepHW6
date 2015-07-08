@@ -105,12 +105,10 @@ int main(int argc, char** argv){
   }
   
   int firstNum = numTemp;
-  printf("First: %d\n", numTemp);
   while(1){
     if(numTemp == 1)
       break;
     numTemp = decideSize(numTemp);
-    printf("NOW: %d\n", numTemp);
 
     int i = 0, p1, p2;
     while(i < numTemp){
@@ -118,7 +116,6 @@ int main(int argc, char** argv){
       p2 = i * 2 + 1;
       if(p2 == firstNum)
 	p2 = p2 - 1;
-      printf("p1 = %d, p2 = %d\n", p1, p2);
       fpT[i] = mergeFile(fpT[p1], fpT[p2]);
       i++;
     }
