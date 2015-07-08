@@ -130,7 +130,7 @@ int main(int argc, char** argv){
     size_t ret = fread(buffer, sizeof(int), num, fpT[0]);
     if(ret == 0)
       break;
-    fwrite(buffer, sizeof(int), num, fpW);
+    fwrite(buffer, sizeof(int), ret, fpW);
   }
 
   double end = get_time();
